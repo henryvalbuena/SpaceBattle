@@ -1,0 +1,15 @@
+body{
+  background-color: #000000e3;
+  color: white;
+}
+.shape{
+  width: 0;
+	height: 0;
+	border-left: 50px solid transparent;
+	border-right: 50px solid transparent;
+	border-bottom: 100px solid gray;
+  /* z-index: -1; */
+}
+h3, .shape{
+  position: absolute;
+}
