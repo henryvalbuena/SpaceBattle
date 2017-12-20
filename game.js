@@ -8,7 +8,7 @@ function startGame() {
   background1 = new Component(innerW, innerH, "background.jpg", 0,-innerH, "image");
   airCraft = new Component(30, 30, "white", innerW/2, innerH/2, "others");
   // aliens = new Component(30, 30, "orange", 30, 100, "others");
-  for(var i = 0; i <= 3; i++){
+  for(var i = 0; i <= 4; i++){
     aliens[i] = new Component(30, 30, "orange", 0, 0, "others");
   }
   laser = new Component(5, 0, "red", innerW/2, innerH/2, "laser");
@@ -53,7 +53,7 @@ var myGameArea = {
   refresh: function() {
     this.canvas.style.cursor = "none";
     this.interval = setInterval(updateGameArea, 20);
-    aliens.forEach((x) => x.alienMotion());
+    aliens.forEach((x) => x.alienHit());
   }
 }
 function Component(width, height, c, x, y, type){
@@ -104,9 +104,24 @@ function Component(width, height, c, x, y, type){
       bulletTime = false;
     }
   }
-  this.alienMotion = function() {
+  this.alienHit = function() {
     this.x = Math.floor(Math.random()*(window.innerWidth - 30)+1);
     this.y = -20;
+  }
+  this.alienMotion = function(){
+    this.angle  += 1 * Math.PI / 15;
+    this.y++;
+    if(this.y >= innerH){
+      this.y = -20;
+    }
+  }
+  this.looping = function(){
+    this.y+=2;
+    background0.y+=2;
+    if(this.y >= 0){
+      this.y = -innerH;
+      background0.y = 0;
+    }
   }
 }
 function updateGameArea() {
@@ -116,23 +131,17 @@ function updateGameArea() {
     myGameArea.clear();
     background0.create();
     background1.create();
-    background1.y+=2;
-    background0.y+=2;
-    if(background1.y >= 0){
-      background1.y = -innerH;
-      background0.y = 0;
-    }
+    background1.looping();
     airCraft.create();
     airCraft.angle = 14.87;
     laser.create();
     laser.fire();
     aliens.forEach((x) =>{
       x.create();
-      x.angle  += 1 * Math.PI / 15;
-      x.y++;
+      x.alienMotion();
       if(laser.collision(x)) {
         bulletTime = false;
-        x.alienMotion();
+        x.alienHit();
       }
     });
   }
