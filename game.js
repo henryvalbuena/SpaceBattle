@@ -1,7 +1,7 @@
 var airCraft, aliens, laser, bulletTime, background, background1, reset;
 function startGame() {
   bulletTime = false;
-  background = new Component(window.innerWidth, window.innerHeight, "background.jpg", 0,0, "image");
+  background0 = new Component(window.innerWidth, window.innerHeight, "background.jpg", 0,0, "image");
   background1 = new Component(window.innerWidth, window.innerHeight, "background.jpg", 0,-window.innerHeight, "image");
   airCraft = new Component(30, 30, "white", 100, 150, "others");
   aliens = new Component(30, 30, "orange", 30, 100, "others");
@@ -108,13 +108,13 @@ function updateGameArea() {
     myGameArea.stop();
   } else {
     myGameArea.clear();
-    background.create();
+    background0.create();
     background1.create();
     background1.y++;
-    background.y++;
+    background0.y++;
     if(background1.y == 0){
       background1.y = -window.innerHeight;
-      background.y = 0;
+      background0.y = 0;
     }
     airCraft.create();
     airCraft.angle = 14.87;
