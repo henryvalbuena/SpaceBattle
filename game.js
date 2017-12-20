@@ -1,11 +1,17 @@
-var airCraft, aliens, laser, bulletTime, background0, background1, reset;
+var airCraft, aliens, laser, crashed, bulletTime, background0, background1, reset, innerW, innerH;
 function startGame() {
-  bulletTime = false;
-  background0 = new Component(window.innerWidth, window.innerHeight, "background.jpg", 0,0, "image");
-  background1 = new Component(window.innerWidth, window.innerHeight, "background.jpg", 0,-window.innerHeight, "image");
-  airCraft = new Component(30, 30, "white", 100, 150, "others");
-  aliens = new Component(30, 30, "orange", 30, 100, "others");
-  laser = new Component(5, 0, "red", 100, 150, "laser");
+  aliens = [];
+  bulletTime = crashed = false;
+  innerH = window.innerHeight;
+  innerW = window.innerWidth;
+  background0 = new Component(innerW, innerH, "background.jpg", 0,0, "image");
+  background1 = new Component(innerW, innerH, "background.jpg", 0,-innerH, "image");
+  airCraft = new Component(30, 30, "white", innerW/2, innerH/2, "others");
+  // aliens = new Component(30, 30, "orange", 30, 100, "others");
+  for(var i = 0; i <= 3; i++){
+    aliens[i] = new Component(30, 30, "orange", 0, 0, "others");
+  }
+  laser = new Component(5, 0, "red", innerW/2, innerH/2, "laser");
   reset = new Component(30, 30, "blue", 30, 30, "others");
   myGameArea.start();
   myGameArea.refresh();
@@ -14,8 +20,8 @@ function startGame() {
 var myGameArea = {
   canvas : document.createElement("canvas"),
   start : function() {
-    this.canvas.width = window.innerWidth - 20;
-    this.canvas.height = window.innerHeight - 20;
+    this.canvas.width = innerW - 20;
+    this.canvas.height = innerH - 20;
     this.context = this.canvas.getContext("2d");
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     window.addEventListener('keypress', (event) => {
@@ -23,7 +29,7 @@ var myGameArea = {
         bulletTime = true;
       }
     });
-    window.addEventListener('click', (event) => {
+    document.addEventListener('click', (event) => {
       var buttonBott = reset.x + reset.width;
       var buttonSide = reset.y + reset.height;
       if(event.clientX >= reset.x && event.clientX <= buttonBott
@@ -31,7 +37,7 @@ var myGameArea = {
         myGameArea.refresh();
       }
     });
-    window.addEventListener('mousemove', (event) =>{
+    document.addEventListener('mousemove', (event) =>{
       airCraft.x = event.pageX;
       airCraft.y = event.pageY;
     });
@@ -47,7 +53,7 @@ var myGameArea = {
   refresh: function() {
     this.canvas.style.cursor = "none";
     this.interval = setInterval(updateGameArea, 20);
-    aliens.alienMotion();
+    aliens.forEach((x) => x.alienMotion());
   }
 }
 function Component(width, height, c, x, y, type){
@@ -80,14 +86,14 @@ function Component(width, height, c, x, y, type){
     }
   }
   this.collision = function(obj) {
-    var objxBott = obj.x + obj.width;
-    var objyHeight = obj.y + obj.height;
-    if((this.x + 15) >= obj.x && (this.x + 15) <= objxBott
-      && this.y <= objyHeight && this.y >= obj.y){
-      return true;
-    } else {
-      return false;
-    }
+      var objxBott = obj.x + obj.width;
+      var objyHeight = obj.y + obj.height;
+      if((this.x + 15) >= obj.x && (this.x + 15) <= objxBott
+        && this.y <= objyHeight && this.y >= obj.y){
+        return true;
+      } else {
+        return false;
+      }
   }
   this.fire = function() {
     if(bulletTime && (this.y >= 0)){
@@ -100,13 +106,12 @@ function Component(width, height, c, x, y, type){
   }
   this.alienMotion = function() {
     this.x = Math.floor(Math.random()*(window.innerWidth - 30)+1);
-    this.y = 100;
+    this.y = -20;
   }
 }
 function updateGameArea() {
-
-  if(airCraft.collision(aliens)){
-    myGameArea.stop();
+  if(aliens.some((x) =>{ return airCraft.collision(x) })){
+      myGameArea.stop();
   } else {
     myGameArea.clear();
     background0.create();
@@ -114,20 +119,22 @@ function updateGameArea() {
     background1.y+=2;
     background0.y+=2;
     if(background1.y >= 0){
-      background1.y = -window.innerHeight;
+      background1.y = -innerH;
       background0.y = 0;
     }
     airCraft.create();
     airCraft.angle = 14.87;
-    aliens.create();
-    aliens.angle  += 1 * Math.PI / 15;
-    aliens.y++;
     laser.create();
     laser.fire();
-    if(laser.collision(aliens)) {
-      bulletTime = false;
-      aliens.alienMotion();
-    }
+    aliens.forEach((x) =>{
+      x.create();
+      x.angle  += 1 * Math.PI / 15;
+      x.y++;
+      if(laser.collision(x)) {
+        bulletTime = false;
+        x.alienMotion();
+      }
+    });
   }
 }
 startGame();
