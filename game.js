@@ -1,4 +1,4 @@
-var airCraft, aliens, laser, bulletTime, background, background1, reset;
+var airCraft, aliens, laser, bulletTime, background0, background1, reset;
 function startGame() {
   bulletTime = false;
   background0 = new Component(window.innerWidth, window.innerHeight, "background.jpg", 0,0, "image");
@@ -40,6 +40,7 @@ var myGameArea = {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   },
   stop: function(){
+    reset.create();
     this.canvas.style.cursor = "";
     clearInterval(this.interval);
   },
@@ -110,9 +111,9 @@ function updateGameArea() {
     myGameArea.clear();
     background0.create();
     background1.create();
-    background1.y++;
-    background0.y++;
-    if(background1.y == 0){
+    background1.y+=2;
+    background0.y+=2;
+    if(background1.y >= 0){
       background1.y = -window.innerHeight;
       background0.y = 0;
     }
@@ -123,7 +124,6 @@ function updateGameArea() {
     aliens.y++;
     laser.create();
     laser.fire();
-    reset.create();
     if(laser.collision(aliens)) {
       bulletTime = false;
       aliens.alienMotion();
