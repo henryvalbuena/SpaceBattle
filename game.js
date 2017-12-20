@@ -1,12 +1,14 @@
-var airCraft, aliens, laser, bulletTime, reset;
+var airCraft, aliens, laser, bulletTime, background, background1, reset;
 function startGame() {
   bulletTime = false;
+  background = new Component(window.innerWidth, window.innerHeight, "background.jpg", 0,0, "image");
+  background1 = new Component(window.innerWidth, window.innerHeight, "background.jpg", 0,-window.innerHeight, "image");
+  airCraft = new Component(30, 30, "white", 100, 150, "others");
+  aliens = new Component(30, 30, "orange", 30, 100, "others");
+  laser = new Component(5, 0, "red", 100, 150, "laser");
+  reset = new Component(30, 30, "blue", 30, 30, "others");
   myGameArea.start();
   myGameArea.refresh();
-  airCraft = new Component(30, 30, "white", 100, 150);
-  aliens = new Component(30, 30, "green", 30, 100);
-  laser = new Component(5, 0, "red", 100, 150);
-  reset = new Component(30, 30, "blue", 30, 30);
 }
 
 var myGameArea = {
@@ -14,7 +16,6 @@ var myGameArea = {
   start : function() {
     this.canvas.width = window.innerWidth - 20;
     this.canvas.height = window.innerHeight - 20;
-    this.canvas.style.cursor = "none";
     this.context = this.canvas.getContext("2d");
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     window.addEventListener('keypress', (event) => {
@@ -27,7 +28,6 @@ var myGameArea = {
       var buttonSide = reset.y + reset.height;
       if(event.clientX >= reset.x && event.clientX <= buttonBott
         && event.clientY <= buttonSide && event.clientY >= reset.y){
-        console.log("Clicked");
         myGameArea.refresh();
       }
     });
@@ -44,30 +44,39 @@ var myGameArea = {
     clearInterval(this.interval);
   },
   refresh: function() {
+    this.canvas.style.cursor = "none";
     this.interval = setInterval(updateGameArea, 20);
+    aliens.alienMotion();
   }
 }
-function Component(width, height, c, x, y){
+function Component(width, height, c, x, y, type){
+  this.type = type;
+  if(type == "image"){
+    this.image = new Image();
+    this.image.src = c;
+  }
   this.width = width;
   this.height = height;
   this.x = x;
   this.y = y;
   this.angle = 0;
-  this.ships = function() {
+  this.create = function() {
     ctx = myGameArea.context;
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.rotate(this.angle);
-    ctx.fillStyle = c;
-    ctx.fillRect(this.width / -2, this.height / -2, this.width, this.height);
-    ctx.restore();
-  }
-  this.bullet = function() {
-    ctx = myGameArea.context;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.width, this.height, 2*Math.PI);
-    ctx.fillStyle = c;
-    ctx.fill();
+    if(type == "image"){
+      ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+    } else if(type == "others"){
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle);
+      ctx.fillStyle = c;
+      ctx.fillRect(this.width / -2, this.height / -2, this.width, this.height);
+      ctx.restore();
+    } else if(type == "laser"){
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.width, this.height, 2*Math.PI);
+      ctx.fillStyle = c;
+      ctx.fill();
+    }
   }
   this.collision = function(obj) {
     var objxBott = obj.x + obj.width;
@@ -81,7 +90,7 @@ function Component(width, height, c, x, y){
   }
   this.fire = function() {
     if(bulletTime && (this.y >= 0)){
-      this.y-=18;
+      this.y-=22;
     } else {
       this.x = airCraft.x;
       this.y = airCraft.y;
@@ -90,6 +99,7 @@ function Component(width, height, c, x, y){
   }
   this.alienMotion = function() {
     this.x = Math.floor(Math.random()*(window.innerWidth - 30)+1);
+    this.y = 100;
   }
 }
 function updateGameArea() {
@@ -98,12 +108,22 @@ function updateGameArea() {
     myGameArea.stop();
   } else {
     myGameArea.clear();
-    airCraft.ships();
-    airCraft.angle = 14.7654;
-    aliens.ships();
-    laser.bullet();
+    background.create();
+    background1.create();
+    background1.y++;
+    background.y++;
+    if(background1.y == 0){
+      background1.y = -window.innerHeight;
+      background.y = 0;
+    }
+    airCraft.create();
+    airCraft.angle = 14.87;
+    aliens.create();
+    aliens.angle  += 1 * Math.PI / 15;
+    aliens.y++;
+    laser.create();
     laser.fire();
-    reset.ships();
+    reset.create();
     if(laser.collision(aliens)) {
       bulletTime = false;
       aliens.alienMotion();
