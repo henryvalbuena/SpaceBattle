@@ -1,4 +1,6 @@
-var scoreBoard, airCraft, aliens, laser, crashed, bulletTime, background0, background1, reset, innerW, innerH, scoreCount;
+var scoreBoard, airCraft, aliens, laser, crashed,
+    bulletTime, background0, background1, reset, innerW,
+    innerH, scoreCount;
 function startGame() {
   scoreCount = 0;
   aliens = [];
@@ -7,10 +9,9 @@ function startGame() {
   innerW = window.innerWidth;
   background0 = new Component(innerW, innerH, "background.jpg", 0,0, "image");
   background1 = new Component(innerW, innerH, "background.jpg", 0,-innerH, "image");
-  airCraft = new Component(30, 30, "white", innerW/2, innerH/2, "others");
-  // aliens = new Component(30, 30, "orange", 30, 100, "others");
-  for(var i = 0; i <= 4; i++){
-    aliens[i] = new Component(30, 30, "orange", 0, 0, "others");
+  airCraft = new Component(30, 30, "gray", innerW/2, innerH/2, "others");
+  for(var i = 0; i <= 5; i++){
+    aliens[i] = new Component(30, 30, "purple", 0, 0, "others");
   }
   laser = new Component(5, 0, "red", innerW/2, innerH/2, "laser");
   reset = new Component(30, 30, "steelblue", 30, 30, "others");
@@ -97,34 +98,18 @@ function Component(width, height, c, x, y, type){
       var objLeft = obj.x;
       var objRight = obj.x + obj.width;
       var objTop = obj.y;
-      var thisBott = this.y + this.height;
+      var thisBott = this.y + this.height + 25;
       var thisLeft = this.x;
-      var thisRight = this.x + this.width;
+      var thisRight = this.x + this.width + 10;
       var thisTop = this.y;
-      // if((this.x + 25) >= obj.x && (this.x + 25) <= objxBott
-      if(((objTop <= thisBott && objTop >= thisTop)
-      || (objBott >= thisTop && objBott <= thisBott)
+      if((((objTop <= thisBott && objTop >= thisTop)
+      || (objBott >= thisTop && objBott <= thisBott))
       && (objLeft <= thisRight && objRight >= thisLeft))){
-	       // console.log(calc);
   		return true;
       } else {
   		return false;
       }
   }
-  // this.collision = function(obj) {
-  //     var objxBott = obj.x + obj.width;
-  //     var objyHeight = obj.y + obj.height;
-  //     var thisXBott = this.x + this.width;
-  //     var thisYHeight = this.y + this.height;
-  //     // if((this.x + 25) >= obj.x && (this.x + 25) <= objxBott
-  //     if(this.x >= obj.x && thisXBott <= objxBott
-  //       && this.y <= objyHeight && this.y >= obj.y){
-  //       // && this.y <= objyHeight && this.y >= obj.y){
-  //       return true;
-  //     } else {
-  //       return false;
-  //     }
-  // }
   this.fire = function() {
     if(bulletTime && (this.y >= 0)){
       this.y-=22;
@@ -172,11 +157,11 @@ function updateGameArea() {
     aliens.forEach((x) =>{
       x.create();
       x.alienMotion();
-      // if(laser.collision(x)) {
-      //   bulletTime = false;
-      //   scoreCount++;
-      //   x.alienHit();
-      // }
+      if(laser.collision(x) && bulletTime) {
+        bulletTime = false;
+        scoreCount++;
+        x.alienHit();
+      }
     });
   }
 }
