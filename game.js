@@ -9,13 +9,13 @@ function startGame() {
   innerW = window.innerWidth;
   background0 = new Component(innerW, innerH, "background.jpg", 0,0, "image");
   background1 = new Component(innerW, innerH, "background.jpg", 0,-innerH, "image");
-  airCraft = new Component(30, 30, "gray", innerW/2, innerH/2, "others");
+  airCraft = new Component(60, 60, "AirCraft.png", innerW/2, innerH/2, "image");
   for(var i = 0; i <= 5; i++){
-    aliens[i] = new Component(30, 30, "purple", 0, 0, "others");
+    aliens[i] = new Component(40, 40, "AlienShip.png", 0, 0, "image");
   }
   laser = new Component(5, 0, "red", innerW/2, innerH/2, "laser");
-  reset = new Component(30, 30, "steelblue", 30, 30, "others");
-  scoreBoard = new Component(80, 30, "gray", (innerW/2 - innerW/4), (innerH - 100), "text");
+  reset = new Component(96, 44, "Button.png", 30, 30, "image");
+  scoreBoard = new Component(80, 30, "gray", (innerW/2 - innerW/3), (innerH - 100), "text");
   myGameArea.start();
   myGameArea.refresh();
 }
@@ -88,6 +88,7 @@ function Component(width, height, c, x, y, type){
     } else if(type == "laser"){
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.width, this.height, 2*Math.PI);
+      // ctx.arc(this.x, this.y, this.width, this.height, 2*Math.PI);
       ctx.fillStyle = c;
       ctx.fill();
     } else if(type == "text"){
@@ -101,10 +102,14 @@ function Component(width, height, c, x, y, type){
       var objLeft = obj.x;
       var objRight = obj.x + obj.width;
       var objTop = obj.y;
-      var thisBott = this.y + this.height + 15;
+      var thisBott = this.y + this.height;
       var thisLeft = this.x;
-      var thisRight = this.x + this.width + 2;
+      var thisRight = this.x + this.width;
       var thisTop = this.y;
+      if(bulletTime){
+        thisBott += 15;
+        thisRight+= 2;
+      }
       if((((objTop <= thisBott && objTop >= thisTop)
       || (objBott >= thisTop && objBott <= thisBott))
       && (objLeft <= thisRight && objRight >= thisLeft))){
@@ -117,8 +122,8 @@ function Component(width, height, c, x, y, type){
     if(bulletTime && (this.y >= 0)){
       this.y-=22;
     } else {
-      this.x = airCraft.x;
-      this.y = airCraft.y;
+      this.x = airCraft.x + airCraft.width/2;
+      this.y = airCraft.y - 5;
       bulletTime = false;
     }
   }
@@ -143,6 +148,8 @@ function Component(width, height, c, x, y, type){
     }
   }
 }
+
+
 function updateGameArea() {
   if(aliens.some((x) =>{
   return airCraft.collision(x)})){
@@ -153,7 +160,7 @@ function updateGameArea() {
     background1.create();
     background1.looping();
     airCraft.create();
-    airCraft.angle = 14.87;
+    // airCraft.angle = 14.87;
     laser.create();
     laser.fire();
     scoreBoard.create();
