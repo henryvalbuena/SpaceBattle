@@ -56,6 +56,9 @@ var myGameArea = {
   refresh: function() {
     this.canvas.style.cursor = "none";
     scoreCount = 0;
+    bulletTime = false;
+    laser.x = airCraft.x = innerW/2;
+    laser.y = airCraft.y = innerH/2;
     this.interval = setInterval(updateGameArea, 20);
     aliens.forEach((x) => x.alienHit());
   }
@@ -98,9 +101,9 @@ function Component(width, height, c, x, y, type){
       var objLeft = obj.x;
       var objRight = obj.x + obj.width;
       var objTop = obj.y;
-      var thisBott = this.y + this.height + 25;
+      var thisBott = this.y + this.height + 15;
       var thisLeft = this.x;
-      var thisRight = this.x + this.width + 10;
+      var thisRight = this.x + this.width + 2;
       var thisTop = this.y;
       if((((objTop <= thisBott && objTop >= thisTop)
       || (objBott >= thisTop && objBott <= thisBott))
