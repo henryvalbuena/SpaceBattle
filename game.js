@@ -162,20 +162,15 @@ function Component(width, height, c, x, y, type){
     }
   }
   this.glow = function(){
-    if((scoreCount >= 10) && !bonusStats.dual){
+    if(((scoreCount >= 20) && !bonusStats.dual)
+    || ((scoreCount >= 60) && !bonusStats.dual)
+    || ((scoreCount >= 100) && !bonusStats.dual)){
       if(this.y <= innerH+this.height){
         if(this.y == -20){this.x = Math.floor(Math.random()*(innerW*0.8)+5)}
         this.y++;
       }else{
-        // bonusStats.dual = false;
         this.y = -40;
       }
-    // }else if(scoreCount >=30){
-    //   if(this.y <= innerH+this.height){
-    //       this.y++;
-    //   }else{
-    //     this.y = -40;
-    //   }
     }else{
       this.y = -40;
     }
