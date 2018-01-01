@@ -14,7 +14,7 @@ function startGame(){
   speedCreate: false} // cannot be less than 2
   innerH = window.innerHeight;
   innerW = window.innerWidth;
-// Component(width, Height, Color or Imange, x, y, type)
+  // Component(width, Height, Color or Imange, x, y, type)
   background0 = new Component(innerW, innerH, "background.jpg", 0,0, "image");
   background1 = new Component(innerW, innerH, "background.jpg", 0,-innerH, "image");
   airCraft = new Component(60, 60, "AirCraft.png", innerW/2, innerH/2, "image");
@@ -83,10 +83,12 @@ var myGameArea = {
     } else if (timedEvents.scoreCount >= 60 && (aliens[aliens.length-1].y +
       aliens[aliens.length-1].height) <= innerH) {
       return true;
-    } else if (timedEvents.scoreCount >= 30 && (aliens[aliens.length-1].y +
+    } else if (timedEvents.scoreCount >= 20 && (aliens[aliens.length-1].y +
       aliens[aliens.length-1].height) <= innerH
   && timedEvents.bossShotsCount <= 20) {
       return true;
+    } else {
+      return false;
     }
   }
 }
@@ -103,16 +105,15 @@ function Component(width, height, c, x, y, type){
   this.height = height;
   this.x = x;
   this.y = y;
-  // this.angle = 0;
   this.create = function() {
     ctx = myGameArea.context;
-  if(type === "image"){
-      ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-    } else if(type === "text"){
-      ctx.font = "15px Arial";
-      ctx.fillStyle = "white";
-      ctx.fillText("Score "+timedEvents.scoreCount,this.x, this.y);
-    }
+    if(type === "image"){
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+      } else if(type === "text"){
+        ctx.font = "15px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText("Score "+timedEvents.scoreCount,this.x, this.y);
+      }
   }
   this.collision = function(obj) {
       var objBott = obj.y + obj.height;
@@ -185,28 +186,25 @@ function Component(width, height, c, x, y, type){
   }
   this.alienHit = function(mode) {
     if(mode === "bossStart"){
-      this.x = Math.floor(Math.random()*(innerW*0.8)+10);
+      explosion.width = explosion.height = 100;
+      explosion.x = this.x;
+      explosion.y = this.y;
+      timedEvents.explosionEffect = true;
+      this.y++;
     }else if(mode === "alien"){
       explosion.width = explosion.height = 70;
       explosion.x = this.x;
       explosion.y = this.y;
-      explosion.image.src = "spaceEffects_017.png";
       timedEvents.explosionEffect = true;
       this.x = Math.floor(Math.random()*(innerW*0.8)+10);
       this.y = -40;
     }else if(mode === "bossEnd"){
-      // explosion.width = explosion.height = 100;
-      // explosion.x = this.x;
-      // explosion.y = this.y;
-      // explosion.image.src = "spaceEffects_016.png";
-      // timedEvents.explosionEffect = true;
       this.y = -100;
       this.width = this.height = 0;
     }
   }
   this.alienMotion = function(mode){
     if((this.y >= innerH) && (mode === "bossStart")){
-      // this.alienHit("bossEnd");
       myGameArea.stop();
     }else if((this.y >= innerH) && (mode === "alien")){
       timedEvents.scoreCount--;
@@ -215,18 +213,13 @@ function Component(width, height, c, x, y, type){
       this.width = 100;
       this.height = 100;
       this.image.src = "ship4_mod.png";
-      this.y += 0.5;
-      if(this.y == -30){this.x = Math.floor(Math.random()*(innerW*0.8)+5)}
-    // }else if(mode === "bossEnd"){
-    //   this.y = -40;
-    //   this.width = this.height = 0;
-    //   timedEvents.explosionEffect = true;
+      this.y ++;
+      if(this.y == -90){this.x = Math.floor(Math.random()*(innerW*0.8)+5)}
     }else if(mode === "explosion"){
-      // var srcx = Math.floor(Math.random()*2+5);
-      // var srcy = "spaceEffects_01"+srcx+".png";
-      // this.image.src = srcy;
+      var imgSrc = ["spaceEffects_012.png", "spaceEffects_017.png"];
+      this.image.src = imgSrc[Math.floor(Math.random()*2)];
       this.width <= 0 ? timedEvents.explosionEffect = false:
-      (this.width-=5,this.height-=5);
+      (this.width-=2,this.height-=2);
     }else{
       this.y++;
     }
@@ -324,6 +317,7 @@ function updateGameArea() {
       aliens[aliens.length-1].alienMotion("bossStart");
     }else if(myGameArea.gameEvents() == false){
       aliens[aliens.length-1].alienHit("bossEnd");
+      if(timedEvents.explosionEffect) explosion.alienMotion("explosion");
     }
     for(var i = 0; i <= aliens.length-2; i++){
         aliens[i].create();
