@@ -1,6 +1,6 @@
 var bonusBoxGreen, bonusBoxBlue, bonusStats, scoreBoard, airCraft, aliens,
     laser, explosion, speed1, speed2, timedEvents, background0, background1,
-    reset, innerW, innerH;
+    reset, innerW, innerH, soundLaser, soundExplosion, backgroudMusic;
 /****************
 GAME START CALLOUT: Calls for the canvas and canvas elements functions
 this is the function to be called to start the game
@@ -31,6 +31,9 @@ function startGame(){
   explosion = new Component(0, 0, "spaceEffects_017.png", 0, 0, "image");
   speed2 = new Component(20, 40, "fire01.png", 0, 0, "image");
   speed1 = new Component(20, 40, "fire01.png", 0, 0, "image");
+  soundLaser = new Audio("sound-effects/slimeball.wav");
+  soundExplosion = new Audio("sound-effects/explode.wav");
+  backgroudMusic = new Audio("sound-effects/Lines-of-Code.mp3");
   myGameArea.start();
 }
 /****************
@@ -46,6 +49,8 @@ var myGameArea = {
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     document.addEventListener('keypress', (event) => {
       if(event.keyCode == 32) {
+        // soundLaser.currentTime = 0;
+        // soundLaser.play();
         timedEvents.bulletTime = true;
       }
     });
@@ -63,11 +68,15 @@ var myGameArea = {
       airCraft.y = event.pageY;
     });
     this.interval = setInterval(updateGameArea, 20);
+    if(!timedEvents.resetButton){
+      backgroudMusic.play();
+    }
   },
   clear: function(){
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   },
   stop: function(){
+    backgroudMusic.pause();
     reset.create();
     timedEvents.resetButton = true;
     this.canvas.style.cursor = "";
@@ -134,6 +143,8 @@ function Component(width, height, c, x, y, type){
   }
   this.playerLaserMotion = function(type) {
     if(timedEvents.bulletTime && (this.y >= 0)){
+      this.y >= (airCraft.y - 10) ? (soundLaser.currentTime = 0,
+        soundLaser.play()): NaN;
       this.y-= 38;
       this.width = 10;
       this.height = 40;
@@ -142,26 +153,32 @@ function Component(width, height, c, x, y, type){
         this.image.src = "laserRed01.png";
         this.x = airCraft.x - 5 + airCraft.width/2;
         this.y = airCraft.y - 5;
+        timedEvents.bulletTime = false;
       } else if((type === "dual") && bonusStats.dual){
         this.image.src = "laserGreen11.png";
         this.x = airCraft.x + 43;
         this.y = airCraft.y + 25;
+        timedEvents.bulletTime = false;
       } else if((type === "single") && bonusStats.dual){
         this.image.src = "laserGreen11.png";
         this.x = airCraft.x + 9;
         this.y = airCraft.y + 25;
+        timedEvents.bulletTime = false;
       } else if((type === "single") && bonusStats.blast){
         this.image.src = "laserBlue15.png";
         this.x = airCraft.x - 5 + airCraft.width/2;
         this.y = airCraft.y - 5;
+        timedEvents.bulletTime = false;
       } else if((type === "dual") && bonusStats.blast){
         this.image.src = "laserBlue15.png";
         this.x = airCraft.x + 9;
         this.y = airCraft.y + 25;
+        timedEvents.bulletTime = false;
       } else if((type === "blast") && bonusStats.blast){
         this.image.src = "laserBlue15.png";
         this.x = airCraft.x + 43;
         this.y = airCraft.y + 25;
+        timedEvents.bulletTime = false;
       }
       timedEvents.bulletTime = false;
       this.width = 0;
@@ -196,6 +213,8 @@ function Component(width, height, c, x, y, type){
       explosion.x = this.x;
       explosion.y = this.y;
       timedEvents.explosionEffect = true;
+      soundExplosion.currentTime = 0;
+      soundExplosion.play();
       this.x = Math.floor(Math.random()*(innerW*0.8)+10);
       this.y = -40;
     }else if(mode === "bossEnd"){
