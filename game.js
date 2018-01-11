@@ -9,9 +9,9 @@ function startGame(){
   aliens = [];
   laser = [];
   bonusStats = {single: true, dual: false, blast:false, shield: false};
-  timedEvents = {bulletTime: false, bossShotsCount: 0, scoreCount: 0,
-    resetButton: false, difficulty: 7, explosionEffect: false, speedEffect: 0,
-  speedCreate: false} // cannot be less than 2
+  timedEvents = {playerLives: 0, callPlayerLiveStatus: false, bulletTime: false,
+    bossShotsCount: 0, scoreCount: 0, resetButton: false, difficulty: 7, // cannot be less than 2
+    explosionEffect: false, speedEffect: 0, timeElapsed: 0, speedCreate: false}
   innerH = window.innerHeight;
   innerW = window.innerWidth;
   // Component(width, Height, Color or Imange, x, y, type)
@@ -34,6 +34,7 @@ function startGame(){
   soundLaser = new Audio("sound-effects/slimeball.wav");
   soundExplosion = new Audio("sound-effects/explode.wav");
   backgroudMusic = new Audio("sound-effects/Lines-of-Code.mp3");
+  timedEvents.playerLives = 3;
   myGameArea.start();
 }
 /****************
@@ -48,27 +49,14 @@ var myGameArea = {
     this.canvas.style.cursor = "none";
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     document.addEventListener('keypress', (event) => {
-      if(event.keyCode == 32) {
-        // soundLaser.currentTime = 0;
-        // soundLaser.play();
+      if (event.keyCode == 32) {
         timedEvents.bulletTime = true;
       }
     });
-      document.addEventListener('click', (event) => {
-        var buttonBott = reset.x + reset.width;
-        var buttonSide = reset.y + reset.height;
-        if((event.clientX >= reset.x && event.clientX <= buttonBott)
-          && (event.clientY <= buttonSide && event.clientY >= reset.y)
-          && timedEvents.resetButton){
-          startGame();
-        }
-      });
-    document.addEventListener('mousemove', (event) =>{
-      airCraft.x = event.pageX;
-      airCraft.y = event.pageY;
-    });
     this.interval = setInterval(updateGameArea, 20);
-    if(!timedEvents.resetButton){
+    // console.log(Date.now() - timedEvents.timeElapsed)
+    // if ((Date.now() - timedEvents.timeElapsed) >= 5000) timedEvents.callPlayerLiveStatus = true;
+    if (!timedEvents.resetButton){
       backgroudMusic.play();
     }
   },
@@ -90,15 +78,30 @@ var myGameArea = {
     } else if (timedEvents.bossShotsCount == 41) {
       return false;
     } else if (timedEvents.scoreCount >= 60 && (aliens[aliens.length-1].y +
-      aliens[aliens.length-1].height) <= innerH) {
-      return true;
+        aliens[aliens.length-1].height) <= innerH) {
+        return true;
     } else if (timedEvents.scoreCount >= 20 && (aliens[aliens.length-1].y +
-      aliens[aliens.length-1].height) <= innerH
-  && timedEvents.bossShotsCount <= 20) {
+        aliens[aliens.length-1].height) <= innerH
+        && timedEvents.bossShotsCount <= 20) {
       return true;
     } else {
-      return false;
+        return false;
     }
+  },
+  playerLiveStatus: function(timeCheckout) {
+    timedEvents.timeElapsed = timeCheckout;
+    timedEvents.playerLives--;
+    if (timedEvents.playerLives == 0) {
+      myGameArea.stop();
+      bonusStats.single = true;
+      bonusStats.dual = false;
+      bonusStats.blast = false;
+    }
+    timedEvents.callPlayerLiveStatus = false;
+  },
+  collisionTimeOut: function() {
+    console.log(Date.now() - timedEvents.timeElapsed)
+    if ((Date.now() - timedEvents.timeElapsed) >= 5000) timedEvents.callPlayerLiveStatus = true;
   }
 }
 /****************
@@ -122,25 +125,11 @@ function Component(width, height, c, x, y, type){
         ctx.font = "15px Arial";
         ctx.fillStyle = "white";
         ctx.fillText("Score "+timedEvents.scoreCount,this.x, this.y);
+        ctx.fillText("Lives "+timedEvents.playerLives,this.x, this.y+30);
       }
   }
-  this.collision = function(obj) {
-      var objBott = obj.y + obj.height;
-      var objLeft = obj.x;
-      var objRight = obj.x + obj.width - 10;
-      var objTop = obj.y;
-      var thisBott = this.y + this.height;
-      var thisLeft = this.x;
-      var thisRight = this.x + this.width - 10;
-      var thisTop = this.y;
-      if((((objTop <= thisBott && objTop >= thisTop)
-      || (objBott >= thisTop && objBott <= thisBott))
-      && (objLeft <= thisRight && objRight >= thisLeft))){
-  		return true;
-      } else {
-  		return false;
-      }
-  }
+
+  /****** Player logic *****/
   this.playerLaserMotion = function(type) {
     if(timedEvents.bulletTime && (this.y >= 0)){
       this.y >= (airCraft.y - 10) ? (soundLaser.currentTime = 0,
@@ -185,9 +174,28 @@ function Component(width, height, c, x, y, type){
       this.height = 0;
     }
   }
+  this.speedEffect = function(mode){
+    if(mode === "left"){
+      this.x = airCraft.x + 3;
+      this.y = airCraft.y + airCraft.height;
+    }else if(mode === "right"){
+      this.x = airCraft.x + 37;
+      this.y = airCraft.y + airCraft.height;
+    }
+  }
+  // this.playerLiveStatus = function(timeCheckout) {
+  //   timedEvents.timeElapsed = timeCheckout;
+  //   timedEvents.playerLives--;
+  //   if (timedEvents.playerLives == 0) {
+  //     myGameArea.stop();
+  //     bonusStats.single = true;
+  //     bonusStats.dual = false;
+  //     bonusStats.blast = false;
+  //   }
+  //   timedEvents.callPlayerLiveStatus = false;
+  // }
 
-  /****** logic to start aliens to fireback *****/
-
+  /****** Enemies logic *****/
   this.alienLaserMotion = function(alienLaser){
     if(this.y >= -40 && alienLaser.y <= (this.y + innerH)){
       alienLaser.y += 5;
@@ -243,6 +251,8 @@ function Component(width, height, c, x, y, type){
       this.y++;
     }
   }
+
+  /****** Generic game logic *****/
   this.looping = function(){
     this.y+=2;
     background0.y+=2;
@@ -267,110 +277,135 @@ function Component(width, height, c, x, y, type){
       this.y = -40;
     }
   }
-  this.speedEffect = function(mode){
-    if(mode === "left"){
-      this.x = airCraft.x + 3;
-      this.y = airCraft.y + airCraft.height;
-    }else if(mode === "right"){
-      this.x = airCraft.x + 37;
-      this.y = airCraft.y + airCraft.height;
-    }
+  this.collision = function(obj) {
+      var objBott = obj.y + obj.height;
+      var objLeft = obj.x;
+      var objRight = obj.x + obj.width - 10;
+      var objTop = obj.y;
+      var thisBott = this.y + this.height;
+      var thisLeft = this.x;
+      var thisRight = this.x + this.width - 10;
+      var thisTop = this.y;
+      if((((objTop <= thisBott && objTop >= thisTop)
+      || (objBott >= thisTop && objBott <= thisBott))
+      && (objLeft <= thisRight && objRight >= thisLeft))){
+        return true;
+      } else {
+        return false;
+      }
   }
 }
 /****************
 GAME AREA UPDATE: setInterval function
 ****************/
 function updateGameArea() {
-  if(aliens.some((x) =>{
-  return airCraft.collision(x)})){
-    bonusStats.single = true;
-    bonusStats.dual = false;
-    bonusStats.blast = false;
-    myGameArea.stop();
-  } else {
-    myGameArea.clear();
-    background0.create();
-    background1.create();
-    background1.looping();
-    airCraft.create();
-    scoreBoard.create();
-    explosion.create();
-    airCraft.y < timedEvents.speedEffect ? (timedEvents.speedCreate = true,
-            speed1.speedEffect("left"),speed2.speedEffect("right")):
-            (timedEvents.speedCreate = false);
-          timedEvents.speedEffect = airCraft.y;
-    if(timedEvents.speedCreate){speed1.create();speed2.create();}
-    if(bonusBoxGreen.collision(airCraft)){
-      bonusStats.dual = true;
-      bonusStats.single = false;
-      bonusStats.blast = false;
-      bonusBoxGreen.boxShow();
-    }else if(bonusBoxBlue.collision(airCraft)){
-      bonusStats.dual = false;
-      bonusStats.single = false;
-      bonusStats.blast = true;
-      bonusBoxBlue.boxShow();
-    }
-    if(bonusStats.single){
-      bonusBoxGreen.create();
-      bonusBoxGreen.boxShow();
-      laser[laser.length-3].create();
-      laser[laser.length-3].playerLaserMotion("single");
-    } else if(bonusStats.dual){
-      bonusBoxBlue.create();
-      bonusBoxBlue.boxShow();
-      laser[laser.length-3].create();
-      laser[laser.length-3].playerLaserMotion("single");
-      laser[laser.length-2].create();
-      laser[laser.length-2].playerLaserMotion("dual");
-    }else if(bonusStats.blast){
-      laser[laser.length-3].create();
-      laser[laser.length-3].playerLaserMotion("single");
-      laser[laser.length-2].create();
-      laser[laser.length-2].playerLaserMotion("dual");
-      laser[laser.length-1].create();
-      laser[laser.length-1].playerLaserMotion("blast");
-    }
-    if(myGameArea.gameEvents() == true){
-      aliens[aliens.length-1].create();
-      aliens[aliens.length-1].alienMotion("bossStart");
-    }else if(myGameArea.gameEvents() == false){
-      aliens[aliens.length-1].alienHit("bossEnd");
-      if(timedEvents.explosionEffect) explosion.alienMotion("explosion");
-    }
-    for(var i = 0; i <= aliens.length-2; i++){
-        aliens[i].create();
-        aliens[i].alienMotion("alien");
-        // aliens laser create for the remaining indexes of laser array
-        if(i < laser.length-3){
-          laser[i].create();
-          aliens[i].alienLaserMotion(laser[i]);
-          airCraft.collision(laser[i]) == true ? myGameArea.stop(): NaN;
-        }
-        if(laser[laser.length-3].collision(aliens[i]) && timedEvents.bulletTime){
-          timedEvents.bulletTime = false;
-          timedEvents.scoreCount++;
-          aliens[i].alienHit("alien");
-        }
-        if(laser[laser.length-2].collision(aliens[i]) && timedEvents.bulletTime){
-          timedEvents.bulletTime = false;
-          timedEvents.scoreCount++;
-          aliens[i].alienHit("alien");
-        }
-        if(laser[laser.length-1].collision(aliens[i]) && timedEvents.bulletTime){
-          timedEvents.bulletTime = false;
-          timedEvents.scoreCount++;
-          aliens[i].alienHit("alien");
-        }
-    }
-    if(timedEvents.explosionEffect) explosion.alienMotion("explosion");
-    // boss collision detection
-    if((laser.some((y) =>{ return y.collision(aliens[aliens.length-1])}))
-    && timedEvents.bulletTime && myGameArea.gameEvents()){
-      timedEvents.bulletTime = false;
-      timedEvents.bossShotsCount++;
-      aliens[aliens.length-1].alienHit("bossStart");
-    }
+  if (aliens.some(x => {return airCraft.collision(x)})) {
+    if (timedEvents.callPlayerLiveStatus) myGameArea.playerLiveStatus(Date.now());
   }
+  myGameArea.clear();
+  myGameArea.collisionTimeOut();
+  background0.create();
+  background1.create();
+  background1.looping();
+  airCraft.create();
+  scoreBoard.create();
+  explosion.create();
+  airCraft.y < timedEvents.speedEffect ? (timedEvents.speedCreate = true,
+          speed1.speedEffect("left"),speed2.speedEffect("right")):
+          (timedEvents.speedCreate = false);
+        timedEvents.speedEffect = airCraft.y;
+  if(timedEvents.speedCreate){speed1.create();speed2.create();}
+  if(bonusBoxGreen.collision(airCraft)){
+    bonusStats.dual = true;
+    bonusStats.single = false;
+    bonusStats.blast = false;
+    bonusBoxGreen.boxShow();
+  }else if(bonusBoxBlue.collision(airCraft)){
+    bonusStats.dual = false;
+    bonusStats.single = false;
+    bonusStats.blast = true;
+    bonusBoxBlue.boxShow();
+  }
+  if(bonusStats.single){
+    bonusBoxGreen.create();
+    bonusBoxGreen.boxShow();
+    laser[laser.length-3].create();
+    laser[laser.length-3].playerLaserMotion("single");
+  } else if(bonusStats.dual){
+    bonusBoxBlue.create();
+    bonusBoxBlue.boxShow();
+    laser[laser.length-3].create();
+    laser[laser.length-3].playerLaserMotion("single");
+    laser[laser.length-2].create();
+    laser[laser.length-2].playerLaserMotion("dual");
+  }else if(bonusStats.blast){
+    laser[laser.length-3].create();
+    laser[laser.length-3].playerLaserMotion("single");
+    laser[laser.length-2].create();
+    laser[laser.length-2].playerLaserMotion("dual");
+    laser[laser.length-1].create();
+    laser[laser.length-1].playerLaserMotion("blast");
+  }
+  if(myGameArea.gameEvents() == true){
+    aliens[aliens.length-1].create();
+    aliens[aliens.length-1].alienMotion("bossStart");
+  }else if(myGameArea.gameEvents() == false){
+    aliens[aliens.length-1].alienHit("bossEnd");
+    if(timedEvents.explosionEffect) explosion.alienMotion("explosion");
+  }
+  for(var i = 0; i <= aliens.length-2; i++){
+      aliens[i].create();
+      aliens[i].alienMotion("alien");
+      // aliens laser create for the remaining indexes of laser array
+      if(i < laser.length-3){
+        laser[i].create();
+        aliens[i].alienLaserMotion(laser[i]);
+        if (airCraft.collision(laser[i]) == true) {
+          // myGameArea.stop();
+          if (timedEvents.callPlayerLiveStatus) myGameArea.playerLiveStatus(Date.now());
+        }
+      }
+      if(laser[laser.length-3].collision(aliens[i]) && timedEvents.bulletTime){
+        timedEvents.bulletTime = false;
+        timedEvents.scoreCount++;
+        aliens[i].alienHit("alien");
+      }
+      if(laser[laser.length-2].collision(aliens[i]) && timedEvents.bulletTime){
+        timedEvents.bulletTime = false;
+        timedEvents.scoreCount++;
+        aliens[i].alienHit("alien");
+      }
+      if(laser[laser.length-1].collision(aliens[i]) && timedEvents.bulletTime){
+        timedEvents.bulletTime = false;
+        timedEvents.scoreCount++;
+        aliens[i].alienHit("alien");
+      }
+  }
+  if(timedEvents.explosionEffect) explosion.alienMotion("explosion");
+  // boss collision detection
+  if((laser.some((y) =>{ return y.collision(aliens[aliens.length-1])}))
+  && timedEvents.bulletTime && myGameArea.gameEvents()){
+    timedEvents.bulletTime = false;
+    timedEvents.bossShotsCount++;
+    aliens[aliens.length-1].alienHit("bossStart");
+  }
+  // }
 }
+
+/****** Event Listeners *****/
+// buttons detection
+document.addEventListener('click', (event) => {
+  var buttonBott = reset.x + reset.width;
+  var buttonSide = reset.y + reset.height;
+  if((event.clientX >= reset.x && event.clientX <= buttonBott)
+    && (event.clientY <= buttonSide && event.clientY >= reset.y)
+    && timedEvents.resetButton){
+    startGame();
+  }
+});
+// buttons detection Player aircraft movement
+document.addEventListener('mousemove', (event) =>{
+  airCraft.x = event.pageX;
+  airCraft.y = event.pageY;
+});
 startGame();
