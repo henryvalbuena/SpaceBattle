@@ -1,9 +1,9 @@
-var bonusBoxGreen, bonusBoxBlue, bonusStats, scoreBoard, airCraft, aliens,
+var bonusBoxGreen, bonusBoxBlue, bonusStats, scoreBoard, airCraft, shield, aliens,
     laser, explosion, speed1, speed2, timedEvents, background0, background1,
     reset, innerW, innerH, soundLaser, soundExplosion, backgroudMusic;
 /****************
 GAME START CALLOUT: Calls for the canvas and canvas elements functions
-this is the function to be called to start the game
+this is the function to be calgitled to start the game
 ****************/
 function startGame(){
   aliens = [];
@@ -31,6 +31,7 @@ function startGame(){
   explosion = new Component(0, 0, "spaceEffects_017.png", 0, 0, "image");
   speed2 = new Component(20, 40, "fire01.png", 0, 0, "image");
   speed1 = new Component(20, 40, "fire01.png", 0, 0, "image");
+  shield = new Component(0, 0, "shield1.png", 0, 0, "image");
   soundLaser = new Audio("sound-effects/slimeball.wav");
   soundExplosion = new Audio("sound-effects/explode.wav");
   backgroudMusic = new Audio("sound-effects/Lines-of-Code.mp3");
@@ -100,7 +101,6 @@ var myGameArea = {
     timedEvents.callPlayerLiveStatus = false;
   },
   collisionTimeOut: function() {
-    console.log(Date.now() - timedEvents.timeElapsed)
     if ((Date.now() - timedEvents.timeElapsed) >= 5000) timedEvents.callPlayerLiveStatus = true;
   }
 }
@@ -183,18 +183,14 @@ function Component(width, height, c, x, y, type){
       this.y = airCraft.y + airCraft.height;
     }
   }
-  // this.playerLiveStatus = function(timeCheckout) {
-  //   timedEvents.timeElapsed = timeCheckout;
-  //   timedEvents.playerLives--;
-  //   if (timedEvents.playerLives == 0) {
-  //     myGameArea.stop();
-  //     bonusStats.single = true;
-  //     bonusStats.dual = false;
-  //     bonusStats.blast = false;
-  //   }
-  //   timedEvents.callPlayerLiveStatus = false;
-  // }
-
+  this.shieldActive = function() {
+    if (!timedEvents.callPlayerLiveStatus) {
+      this.width = this.height = 80;
+      this.x = airCraft.x - 10;
+      this.y = airCraft.y - 10;
+    }
+    else this.width = this.height = 0;
+  }
   /****** Enemies logic *****/
   this.alienLaserMotion = function(alienLaser){
     if(this.y >= -40 && alienLaser.y <= (this.y + innerH)){
@@ -215,7 +211,11 @@ function Component(width, height, c, x, y, type){
       explosion.x = this.x;
       explosion.y = this.y;
       timedEvents.explosionEffect = true;
-      this.y++;
+      if (timedEvents.bossShotsCount % 2 == 0) this.x += 30;
+      else if (timedEvents.bossShotsCount % 5 == 0) this.x -= 25;
+      else if (timedEvents.bossShotsCount <= 5) this.x += 20;
+      else if (timedEvents.bossShotsCount >= 8) this.x -= 30;
+      // this.y++;
     }else if(mode === "alien"){
       explosion.width = explosion.height = 70;
       explosion.x = this.x;
@@ -253,12 +253,12 @@ function Component(width, height, c, x, y, type){
   }
 
   /****** Generic game logic *****/
-  this.looping = function(){
+  this.looping = function(obj){
     this.y+=2;
-    background0.y+=2;
+    obj.y+=2;
     if(this.y >= 0){
       this.y = -innerH;
-      background0.y = 0;
+      obj.y = 0;
     }
   }
   this.boxShow = function(){
@@ -306,7 +306,7 @@ function updateGameArea() {
   myGameArea.collisionTimeOut();
   background0.create();
   background1.create();
-  background1.looping();
+  background1.looping(background0);
   airCraft.create();
   scoreBoard.create();
   explosion.create();
@@ -383,13 +383,16 @@ function updateGameArea() {
   }
   if(timedEvents.explosionEffect) explosion.alienMotion("explosion");
   // boss collision detection
-  if((laser.some((y) =>{ return y.collision(aliens[aliens.length-1])}))
+  if((laser.some((y) => { return y.collision(aliens[aliens.length-1])}))
   && timedEvents.bulletTime && myGameArea.gameEvents()){
     timedEvents.bulletTime = false;
     timedEvents.bossShotsCount++;
     aliens[aliens.length-1].alienHit("bossStart");
   }
   // }
+
+  shield.create();
+  shield.shieldActive();
 }
 
 /****** Event Listeners *****/
