@@ -50,13 +50,11 @@ var myGameArea = {
     this.canvas.style.cursor = "none";
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     document.addEventListener('keypress', (event) => {
-      if (event.keyCode == 32) {
+      if (event.charCode == 32) {
         timedEvents.bulletTime = true;
       }
     });
     this.interval = setInterval(updateGameArea, 20);
-    // console.log(Date.now() - timedEvents.timeElapsed)
-    // if ((Date.now() - timedEvents.timeElapsed) >= 5000) timedEvents.callPlayerLiveStatus = true;
     if (!timedEvents.resetButton){
       backgroudMusic.play();
     }
