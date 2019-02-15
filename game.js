@@ -45,7 +45,8 @@ var myGameArea = {
     this.canvas.style.cursor = "none";
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     document.addEventListener('keypress', (event) => {
-      if(event.keyCode == 32) {
+      console.log(event)
+      if(event.charCode == 32) {
         timedEvents.bulletTime = true;
       }
     });
