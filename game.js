@@ -34,7 +34,7 @@ function startGame(){
   shield = new Component(0, 0, "shield1.png", 0, 0, "image");
   soundLaser = new Audio("sound-effects/slimeball.wav");
   soundExplosion = new Audio("sound-effects/explode.wav");
-  backgroudMusic = new Audio("sound-effects/Lines-of-Code.mp3");
+  backgroudMusic = new Audio("sound-effects/Lines-of-Code.wav");
   timedEvents.playerLives = 3;
   myGameArea.start();
 }
@@ -50,12 +50,7 @@ var myGameArea = {
     this.canvas.style.cursor = "none";
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     document.addEventListener('keypress', (event) => {
-<<<<<<< HEAD
-      console.log(event)
-      if(event.charCode == 32) {
-=======
       if (event.charCode == 32) {
->>>>>>> newFeatures
         timedEvents.bulletTime = true;
       }
     });

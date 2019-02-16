@@ -1,0 +1,23 @@
+{
+  "name": "spacebattle",
+  "version": "1.0.0",
+  "description": "### This is a small challenge to create a 2D game based on JS, canvas and event listeners. I will be pushing it eventually to my Heroku app.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roycloud/SpaceBattle.git"
+  },
+  "author": "Henry Valbuena",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/roycloud/SpaceBattle/issues"
+  },
+  "homepage": "https://github.com/roycloud/SpaceBattle#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
