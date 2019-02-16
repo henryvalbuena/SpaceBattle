@@ -1,5 +1,5 @@
-# 100DaysOfCode Challenge
+# SPACE BATTLE WEB GAME
 
-### This is a small challenge to create a 2D game based on JS, canvas and event listeners. I will be pushing it eventually to my Heroku app.
+### This is a small challenge to create a 2D game based on JS, canvas and DOM manipulation.
 
-Check the progress here > https://twitter.com/H3nryJvm
+Check the progress here > https://spacebattle-2040.herokuapp.com/
