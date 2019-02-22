@@ -15,26 +15,26 @@ function startGame(){
   innerH = window.innerHeight;
   innerW = window.innerWidth;
   // Component(width, Height, Color or Imange, x, y, type)
-  background0 = new Component(innerW, innerH, "background.jpg", 0,0, "image");
-  background1 = new Component(innerW, innerH, "background.jpg", 0,-innerH, "image");
-  airCraft = new Component(60, 60, "AirCraft.png", innerW/2, innerH/2, "image");
+  background0 = new Component(innerW, innerH, "../images/background.jpg", 0,0, "image");
+  background1 = new Component(innerW, innerH, "../images/background.jpg", 0,-innerH, "image");
+  airCraft = new Component(60, 60, "../images/AirCraft.png", innerW/2, innerH/2, "image");
   for(var i = 0; i <= timedEvents.difficulty-2; i++){
-    aliens[i] = new Component(60, 60, "AlienShip.png", (i*100+100), -70, "image");
+    aliens[i] = new Component(60, 60, "../images/AlienShip.png", (i*100+100), -70, "image");
   }
   for(var i = 0; i <= timedEvents.difficulty; i++){
-    laser[i] = new Component(0, 0, "laserRed01.png", -50, -50, "image");
+    laser[i] = new Component(0, 0, "../images/laserRed01.png", -50, -50, "image");
   }
-  reset = new Component(100, 50, "Button.png", (innerW/2-50), innerH-200, "image");
+  reset = new Component(100, 50, "../images/Button.png", (innerW/2-50), innerH-200, "image");
   scoreBoard = new Component(80, 30, "gray", (innerW/2 - innerW/3), (innerH - 100), "text");
-  bonusBoxGreen = new Component(30, 30, "powerupGreen_bolt.png", 70, -40, "image");
-  bonusBoxBlue = new Component(30, 30, "powerupBlue_bolt.png", 70, -40, "image");
-  explosion = new Component(0, 0, "spaceEffects_017.png", 0, 0, "image");
-  speed2 = new Component(20, 40, "fire01.png", 0, 0, "image");
-  speed1 = new Component(20, 40, "fire01.png", 0, 0, "image");
-  shield = new Component(0, 0, "shield1.png", 0, 0, "image");
-  soundLaser = new Audio("sound-effects/slimeball.wav");
-  soundExplosion = new Audio("sound-effects/explode.wav");
-  backgroudMusic = new Audio("sound-effects/Lines-of-Code.wav");
+  bonusBoxGreen = new Component(30, 30, "../images/powerupGreen_bolt.png", 70, -40, "image");
+  bonusBoxBlue = new Component(30, 30, "../images/powerupBlue_bolt.png", 70, -40, "image");
+  explosion = new Component(0, 0, "../images/spaceEffects_017.png", 0, 0, "image");
+  speed2 = new Component(20, 40, "../images/fire01.png", 0, 0, "image");
+  speed1 = new Component(20, 40, "../images/fire01.png", 0, 0, "image");
+  shield = new Component(0, 0, "../images/shield1.png", 0, 0, "image");
+  soundLaser = new Audio("../sounds/slimeball.wav");
+  soundExplosion = new Audio("../sounds/explode.wav");
+  backgroudMusic = new Audio("../sounds/Lines-of-Code.wav");
   timedEvents.playerLives = 3;
   myGameArea.start();
 }
@@ -137,32 +137,32 @@ function Component(width, height, c, x, y, type){
       this.height = 40;
     } else {
       if((type === "single") && bonusStats.single){
-        this.image.src = "laserRed01.png";
+        this.image.src = "../images/laserRed01.png";
         this.x = airCraft.x - 5 + airCraft.width/2;
         this.y = airCraft.y - 5;
         timedEvents.bulletTime = false;
       } else if((type === "dual") && bonusStats.dual){
-        this.image.src = "laserGreen11.png";
+        this.image.src = "../images/laserGreen11.png";
         this.x = airCraft.x + 43;
         this.y = airCraft.y + 25;
         timedEvents.bulletTime = false;
       } else if((type === "single") && bonusStats.dual){
-        this.image.src = "laserGreen11.png";
+        this.image.src = "../images/laserGreen11.png";
         this.x = airCraft.x + 9;
         this.y = airCraft.y + 25;
         timedEvents.bulletTime = false;
       } else if((type === "single") && bonusStats.blast){
-        this.image.src = "laserBlue15.png";
+        this.image.src = "../images/laserBlue15.png";
         this.x = airCraft.x - 5 + airCraft.width/2;
         this.y = airCraft.y - 5;
         timedEvents.bulletTime = false;
       } else if((type === "dual") && bonusStats.blast){
-        this.image.src = "laserBlue15.png";
+        this.image.src = "../images/laserBlue15.png";
         this.x = airCraft.x + 9;
         this.y = airCraft.y + 25;
         timedEvents.bulletTime = false;
       } else if((type === "blast") && bonusStats.blast){
-        this.image.src = "laserBlue15.png";
+        this.image.src = "../images/laserBlue15.png";
         this.x = airCraft.x + 43;
         this.y = airCraft.y + 25;
         timedEvents.bulletTime = false;
@@ -195,7 +195,7 @@ function Component(width, height, c, x, y, type){
       alienLaser.y += 5;
       alienLaser.width = 20;
       alienLaser.height = 20;
-      alienLaser.image.src = "laserBlue10.png";
+      alienLaser.image.src = "../images/laserBlue10.png";
     } else {
       alienLaser.x = this.x + this.width/3;
       alienLaser.y = this.y + this.height;
@@ -237,11 +237,11 @@ function Component(width, height, c, x, y, type){
     }else if((this.y <= innerH) && (mode === "bossStart")){
       this.width = 100;
       this.height = 100;
-      this.image.src = "ship4_mod.png";
+      this.image.src = "../images/ship4_mod.png";
       this.y ++;
       if(this.y == -90){this.x = Math.floor(Math.random()*(innerW*0.8)+5)}
     }else if(mode === "explosion"){
-      var imgSrc = ["spaceEffects_012.png", "spaceEffects_017.png"];
+      var imgSrc = ["../images/spaceEffects_012.png", "../images/spaceEffects_017.png"];
       this.image.src = imgSrc[Math.floor(Math.random()*2)];
       this.width <= 0 ? timedEvents.explosionEffect = false:
       (this.width-=2,this.height-=2);
