@@ -4,10 +4,10 @@
 
 ### Instructions
 - Can be played using a desktop or laptop
-- Preferibly using Chrome and allowing JavaScript
+- Use Chrome or Firefox and allow JavaScript
 
-### Constrols
-- Press spame key to fire
+### Controls
+- Press space key to fire
 - Move with your cursor
 
 ### Description
