@@ -2,6 +2,14 @@
 
 [DEMO](https://spacebattle-2040.herokuapp.com/)
 
+### Instructions
+- Can be played using a desktop or laptop
+- Preferibly using Chrome and allowing JavaScript
+
+### Constrols
+- Press spame key to fire
+- Move with your cursor
+
 ### Description
 - This was part of my #100DaysOfCode challenge
 - It was developed using only plain JavaScript and DOM manipulation
